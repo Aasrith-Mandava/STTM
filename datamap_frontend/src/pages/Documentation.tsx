@@ -314,16 +314,6 @@ sub-agent owns a few **FunctionTools** and a strict **\`output_schema\`**.`}</Md
           </div>
 
           <h4 className="text-base font-semibold text-brand-darkblue mt-5 mb-2">How an agent works internally</h4>
-          <Md>{`An ADK agent is an LLM wrapped in a **reason → act → observe** loop:
-
-1. The agent gets its **instruction**, its tools' **JSON schemas**, the conversation **history**, and the **session state**.
-2. The LLM emits a **\`function_call\`** (e.g. \`intelligent_profiling_tool(table_references=[...])\`).
-3. ADK runs the matching **\`FunctionTool\`** — a Python function that receives the args plus a **\`tool_context\`** (its handle to session state).
-4. The tool queries the **warehouse** (SQL for stats, cardinality, key/overlap detection) and returns a structured **\`function_response\`**.
-5. The response is appended to context; the LLM continues — more tools if needed.
-6. When done it calls **\`set_model_response(text_response, tool_response)\`**; ADK validates against the agent's **\`output_schema\`** and writes \`state_delta[output_key]\`.
-
-So agents communicate over **two channels**: *tool calls* (agent → tool → warehouse/LLM) and the *final structured answer* (\`text_response\` for the UI + \`tool_response\` with the raw analysis).`}</Md>
           <div className="my-5 border border-gray-200 rounded-lg p-4 bg-white">
             <MermaidDiagram chart={AGENT_LOOP} />
           </div>
