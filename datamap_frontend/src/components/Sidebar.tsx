@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { BookOpen, ChevronLeft, ChevronRight, FileUp, GitBranch, ListIcon, MessageCircle, Plus } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, FileUp, GitBranch, ListIcon, MessageCircle, Plus, Settings as SettingsIcon } from "lucide-react";
 
 import {
   createAppSession,
@@ -156,6 +156,10 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }: SidebarProps)
         <NavLink to="/documentation" className={linkClasses} title="Documentation">
           <BookOpen size={18} strokeWidth={1.5} />
           {!isCollapsed && <span>Documentation</span>}
+        </NavLink>
+        <NavLink to="/settings" className={linkClasses} title="Settings">
+          <SettingsIcon size={18} strokeWidth={1.5} />
+          {!isCollapsed && <span>Settings</span>}
         </NavLink>
       </nav>
       {/* Session Section   */}

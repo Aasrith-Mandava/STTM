@@ -12,6 +12,7 @@ import Mapping from "./pages/Mapping.tsx";
 import { ChatProvider } from "./components/ChatContext.tsx";
 import Extract from "./pages/extract/Extract.tsx";
 import Documentation from "./pages/Documentation.tsx";
+import Settings from "./pages/Settings.tsx";
 
 import "./App.css";
 
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
       {
         path: "documentation",
         element: <Documentation />,
+      },
+      {
+        path: "settings",
+        element: <Settings />,
       },
       {
         // Any unknown/removed route (e.g. old /streaming-* links) -> dashboard.
