@@ -4,6 +4,8 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 import ChatSidebar from "./ChatSidebar";
 import { useChat } from "../contexts/ChatContext";
+import { sendProfilingChatHITLMessage } from "../end-points/chatApi";
+import { getCurrentSessionRuntime } from "../utils/appSessionStorage";
 
 const SIDEBAR_COLLAPSED_KEY = "sidebar_collapsed";
 const NO_SIDEBAR_ROUTES = ["/extract","/", "/dashboard"];
@@ -14,21 +16,49 @@ export default function Layout() {
   const location = useLocation();
   const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState<{ id: string; text: string; isBot: boolean; timestamp: Date }[]>([]);
+  const [isChatLoading, setIsChatLoading] = useState(false);
 
   const isProfilingRoute = location.pathname === "/profiling";
   const hideSidebar = NO_SIDEBAR_ROUTES.includes(location.pathname);
 
-  const handleSend = () => {
-    if (!inputMessage.trim()) return;
+  const handleSend = async () => {
+    const text = inputMessage.trim();
+    if (!text || isChatLoading) return;
+
+    const thinkingId = `${Date.now()}-bot`;
     setMessages((prev) => [
       ...prev,
-      { id: Date.now().toString(), text: inputMessage, isBot: false, timestamp: new Date() },
+      { id: `${Date.now()}-user`, text, isBot: false, timestamp: new Date() },
+      { id: thinkingId, text: "Thinking…", isBot: true, timestamp: new Date() },
     ]);
     setInputMessage("");
+    setIsChatLoading(true);
+
+    const replyWith = (answer: string) =>
+      setMessages((prev) => prev.map((m) => (m.id === thinkingId ? { ...m, text: answer } : m)));
+
+    try {
+      const rt = getCurrentSessionRuntime();
+      if (!rt.sessionId || !rt.appName) {
+        replyWith("Open or create a session and run a profiling first, then I can answer questions about your data.");
+        return;
+      }
+      const res = await sendProfilingChatHITLMessage({
+        user_id: rt.userId || "local-user",
+        session_id: rt.sessionId,
+        app_name: rt.appName,
+        user_message: text,
+      });
+      replyWith(res?.text_response || "I couldn't find an answer — try running a profiling for this session first.");
+    } catch {
+      replyWith("Sorry, something went wrong. Please try again.");
+    } finally {
+      setIsChatLoading(false);
+    }
   };
 
   const handleKeyPress = (e: KeyboardEvent) => {
-    if (e.key === "Enter") handleSend();
+    if (e.key === "Enter") void handleSend();
   };
 
   useEffect(() => {
