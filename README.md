@@ -160,7 +160,9 @@ Then open <http://localhost:5173>. Override ports with `BACKEND_PORT` / `FRONTEN
 Stop both with **Ctrl+C**.
 
 > No data handy? Use the bundled sample CSVs in [`sample_data/`](sample_data/), or download
-> them in-app from the Documentation page.
+> them in-app from the Documentation page. On the upload page, drop all the CSVs into the main
+> **Source data** field — the **Data Dictionary** and **BRD** fields are optional. See
+> [`sample_data/README.md`](sample_data/README.md) for the file-to-field guide.
 
 ---
 

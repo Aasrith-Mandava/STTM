@@ -217,6 +217,15 @@ export default function Documentation() {
               your source files (CSV). Every piece of work lives in a resumable session under{" "}
               <strong>Recent Sessions</strong>.
             </p>
+            <p>
+              Drop your CSVs into the main <strong>Source data</strong> area (you can select several
+              at once). The <strong>Data Dictionary</strong> and <strong>BRD Document</strong> areas
+              are optional — leave them empty if you don't have those files.
+            </p>
+            <p className="text-slate-500">
+              Using the sample set? Put all four CSVs (<span className="font-mono text-xs">groups, providers, members, medical_claims</span>)
+              into <strong>Source data</strong>, and skip Data Dictionary / BRD.
+            </p>
             <Lead label="You get:">your files loaded into the local warehouse plus an initial profiling report.</Lead>
             <a
               href={sampleHref}

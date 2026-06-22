@@ -3,6 +3,19 @@
 A small **relational healthcare/claims** dataset for the Profiling workflow.
 Upload one or more CSVs (or the ZIP) on the "New Profiling" page.
 
+## Where to upload each file
+
+The **New Profiling / Upload** page has three upload areas. For this sample set:
+
+| Upload field | What goes here | Sample files |
+|--------------|----------------|--------------|
+| **Source data** (main drag-and-drop) | The tables you want to profile | `groups.csv`, `providers.csv`, `members.csv`, `medical_claims.csv` — upload all four together |
+| **Data Dictionary** *(optional)* | A column dictionary, if you have one | *leave empty — not included in this sample* |
+| **BRD Document** *(optional)* | A business-requirements doc, if you have one | *leave empty — not needed for the sample* |
+
+> Drop all four CSVs into the **Source data** field in one go (or drag the whole ZIP).
+> The **Data Dictionary** and **BRD** fields are optional — skip them for the sample data.
+
 ## Files & keys
 | File | Rows | Primary key | Foreign keys |
 |------|------|-------------|--------------|
