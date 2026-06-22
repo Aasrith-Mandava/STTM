@@ -1,38 +1,35 @@
-import { useMemo, type ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { BookOpen, Download } from "lucide-react";
+import {
+  BookOpen,
+  Bot,
+  CheckCircle2,
+  Download,
+  FileText,
+  KeyRound,
+  Layers,
+  Network,
+  Settings,
+  Workflow,
+} from "lucide-react";
 import MermaidDiagram from "../components/MermaidDiagram";
 import ArchitectureDiagram from "../components/ArchitectureDiagram";
+import BackendArchitectureDiagram from "../components/BackendArchitectureDiagram";
 import AgentArchitectureDiagram from "../components/AgentArchitectureDiagram";
 import { API_BASE_URL } from "../config/env";
 
 /**
- * In-app Documentation page (Sidebar → under the Chat option). Explains what
- * DataMap does, its architecture (component diagram), the request flow
- * (sequence diagram), the profiling pipeline, sample-data download, and setup.
+ * In-app Documentation (Sidebar → under Chat). A friendly, card-based user
+ * guide (numbered steps, prerequisite chips, tips) plus the architecture,
+ * agentic, and low-level reference — adapted to the standalone, no-login app.
  */
 
-const slugify = (text: string): string =>
-  text.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
-
-const SECTIONS = [
-  "Overview",
-  "Key Capabilities",
-  "Architecture",
-  "Agentic AI Architecture",
-  "Request Flow",
-  "The Profiling Pipeline",
-  "Sample Data",
-  "Setup & Installation",
-  "Running the App",
-  "Configuration",
-  "Troubleshooting",
-];
+type IconType = ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
 
 const mdComponents = {
   table: ({ children }: { children?: ReactNode }) => (
-    <div className="my-5 w-full overflow-x-auto border border-gray-200 rounded-lg">
+    <div className="my-4 w-full overflow-x-auto border border-gray-200 rounded-lg">
       <table className="w-full divide-y divide-gray-200 border-collapse text-sm">{children}</table>
     </div>
   ),
@@ -44,31 +41,78 @@ const mdComponents = {
   ),
   code: ({ className, children, ...props }: { className?: string; children?: ReactNode }) => {
     const isBlock = /language-/.test(className ?? "");
-    if (isBlock) {
-      return <code className={className} {...props}>{children}</code>;
-    }
+    if (isBlock) return <code className={className} {...props}>{children}</code>;
     return <code className="rounded bg-brand-surface px-1.5 py-0.5 text-[0.85em]" {...props}>{children}</code>;
   },
 };
 
 function Md({ children }: { readonly children: string }) {
   return (
-    <div className="prose prose-slate max-w-none prose-headings:text-brand-darkblue prose-a:text-brand-primary prose-code:before:content-none prose-code:after:content-none prose-pre:bg-brand-charcoal">
-      <Markdown remarkPlugins={[remarkGfm]} components={mdComponents}>
-        {children}
-      </Markdown>
+    <div className="prose prose-slate max-w-none prose-sm prose-headings:text-brand-darkblue prose-a:text-brand-primary prose-code:before:content-none prose-code:after:content-none prose-pre:bg-brand-charcoal">
+      <Markdown remarkPlugins={[remarkGfm]} components={mdComponents}>{children}</Markdown>
     </div>
   );
 }
 
-function Section({ title, children }: { readonly title: string; readonly children: ReactNode }) {
+function Card({ id, children }: { readonly id?: string; readonly children: ReactNode }) {
   return (
-    <section id={slugify(title)} className="scroll-mt-8 mb-10">
-      <h2 className="text-xl font-bold text-brand-darkblue border-b border-gray-100 pb-2 mb-4">{title}</h2>
+    <section id={id} className="scroll-mt-6 bg-white border border-gray-200 rounded-xl p-6 shadow-sm mb-6">
       {children}
     </section>
   );
 }
+
+function SectionHeader({ icon: Icon, children }: { readonly icon: IconType; readonly children: ReactNode }) {
+  return (
+    <h2 className="flex items-center gap-2 text-lg font-bold text-brand-darkblue mb-4">
+      <Icon size={18} className="text-brand-primary" />
+      {children}
+    </h2>
+  );
+}
+
+function Chip({ icon: Icon, children }: { readonly icon: IconType; readonly children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs text-slate-600">
+      <Icon size={13} className="text-brand-primary" />
+      {children}
+    </span>
+  );
+}
+
+function Step({ n, title, children }: { readonly n: number; readonly title: string; readonly children: ReactNode }) {
+  return (
+    <div className="flex gap-4 py-4 border-t border-gray-100 first:border-t-0 first:pt-0">
+      <div className="shrink-0 w-7 h-7 rounded-full bg-brand-primary text-white text-sm font-semibold flex items-center justify-center mt-0.5">
+        {n}
+      </div>
+      <div className="min-w-0 flex-1">
+        <h4 className="font-semibold text-slate-800 mb-1">{title}</h4>
+        <div className="text-sm text-slate-600 space-y-2">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function Tip({ children }: { readonly children: ReactNode }) {
+  return (
+    <div className="mt-2 rounded-md bg-brand-surface/70 border border-brand-primary/30 px-3 py-2 text-sm text-slate-700">
+      <span className="font-semibold text-brand-darkblue">Tip:</span> {children}
+    </div>
+  );
+}
+
+function Lead({ label, children }: { readonly label: string; readonly children: ReactNode }) {
+  return (
+    <p>
+      <strong className="text-slate-800">{label}</strong> {children}
+    </p>
+  );
+}
+
+const Code = ({ children }: { readonly children: ReactNode }) => (
+  <code className="rounded bg-brand-surface px-1.5 py-0.5 text-[0.85em]">{children}</code>
+);
 
 const SEQUENCE = `sequenceDiagram
     actor U as User
@@ -124,242 +168,244 @@ const AGENT_LOOP = `sequenceDiagram
     API-->>API: shape { text_response, tool_response, status }`;
 
 export default function Documentation() {
-  const toc = useMemo(() => SECTIONS.map((t) => ({ title: t, id: slugify(t) })), []);
   const sampleHref = `${API_BASE_URL}/files/sample-data`;
 
   return (
-    <div className="min-h-screen bg-brand-light text-slate-900 font-sans pb-16">
-      <main className="max-w-7xl mx-auto p-8">
-        <div className="flex items-center gap-3 mb-2">
-          <BookOpen size={26} className="text-brand-darkblue" strokeWidth={1.5} />
-          <h1 className="text-2xl font-bold text-brand-darkblue">Documentation</h1>
-        </div>
-        <p className="text-slate-500 mb-8">DataMap (STTM) — Source-to-Target Mapping workbench</p>
+    <div className="min-h-screen bg-brand-light text-slate-900 font-sans pb-12">
+      <main className="max-w-5xl mx-auto p-6 lg:p-8">
+        {/* Before you start */}
+        <Card>
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">Before you start</h3>
+          <div className="flex flex-wrap gap-2">
+            <Chip icon={CheckCircle2}>Node.js 18+ and Python 3.12 installed</Chip>
+            <Chip icon={KeyRound}>A valid Gemini key in <span className="font-mono ml-1">datamap_backend/.env</span></Chip>
+            <Chip icon={FileText}>Source CSV files (or the sample set below)</Chip>
+          </div>
+        </Card>
 
-        <div className="flex gap-8 items-start">
-          {/* Table of contents */}
-          <nav className="hidden lg:block w-60 shrink-0 sticky top-8">
-            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400 mb-3">
-                On this page
-              </div>
-              <ul className="space-y-1.5">
-                {toc.map(({ title, id }) => (
-                  <li key={id}>
-                    <a href={`#${id}`} className="block text-sm text-slate-600 hover:text-brand-primary transition-colors">
-                      {title}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </nav>
+        {/* 1. User Guide */}
+        <Card id="user-guide">
+          <SectionHeader icon={BookOpen}>1. User Guide — how to use DataMap</SectionHeader>
 
-          {/* Body */}
-          <article className="flex-1 min-w-0 bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-            <Section title="Overview">
-              <Md>{`**DataMap (STTM)** is an AI-assisted workbench for **Source-to-Target Mapping**.
-You upload source data files (CSV / Excel); DataMap loads them into a local
-analytical warehouse and runs a sequence of AI agents to **profile**, **relate**,
-**document**, **check for anomalies**, and **map** the data to target templates.
+          <Step n={1} title="Start DataMap (no login)">
+            <p>
+              From the repo root run <Code>./start.sh</Code>, then open{" "}
+              <Code>http://localhost:5173</Code>. Standalone <strong>dev mode</strong> has no sign-in —
+              the app opens straight to your workspace.
+            </p>
+            <Lead label="You get:">a local DataMap workspace scoped to a default local user.</Lead>
+            <Tip>If you ever see a "Network Error", check the backend is up and the frontend is on an allowed origin (5173).</Tip>
+          </Step>
 
-It runs **fully standalone** — no external services, no login required. All you
-provide is one LLM API key (Google Gemini or Groq).`}</Md>
-            </Section>
+          <Step n={2} title="Add your Gemini key (one-time, BYOK)">
+            <p>
+              DataMap's AI steps use <strong>your own</strong> model key. Open{" "}
+              <Code>datamap_backend/.env</Code> and set <Code>GOOGLE_API_KEY=...</Code> (or switch to
+              Groq with <Code>LLM_PROVIDER=groq</Code> + <Code>GROQ_API_KEY</Code>), then restart.
+            </p>
+            <Lead label="You provide:">a valid Gemini Developer API key (from aistudio.google.com/apikey).</Lead>
+            <Lead label="You get:">AI steps that read your key at request time — nothing hard-coded.</Lead>
+            <Tip>
+              Verify a key before saving:{" "}
+              <Code>curl "https://generativelanguage.googleapis.com/v1beta/models?key=YOUR_KEY"</Code> should list models.
+            </Tip>
+          </Step>
 
-            <Section title="Key Capabilities">
-              <Md>{`- **Automated data profiling** — row/column stats, data-quality scoring, and a full HTML profiling report.
-- **Relationship analysis** — detects primary/foreign keys and cross-table relationships.
-- **Data dictionary generation** — column-level definitions, types, and keys.
-- **Anomaly analysis** — flags column/table anomalies with severity scoring.
-- **Reference matching** — similarity checks and reference-table suggestions (vector search).
-- **Metadata templates** — fills column and file-spec templates for mapping.
-- **Conversational assistant** — ask questions about your data from the Chat panel.`}</Md>
-            </Section>
+          <Step n={3} title="Create a session & upload source data">
+            <p>
+              Click <strong>New Session</strong>, then <strong>New Profiling / Upload</strong> and add
+              your source files (CSV). Every piece of work lives in a resumable session under{" "}
+              <strong>Recent Sessions</strong>.
+            </p>
+            <Lead label="You get:">your files loaded into the local warehouse plus an initial profiling report.</Lead>
+            <a
+              href={sampleHref}
+              className="inline-flex items-center gap-2 mt-1 rounded-lg bg-brand-primary px-3.5 py-2 text-sm text-white font-medium hover:bg-brand-primary-hover transition-colors no-underline"
+            >
+              <Download size={16} strokeWidth={1.8} />
+              Download sample data (.zip)
+            </a>
+            <Tip>No data handy? Grab the sample set above (providers, members, medical_claims, groups).</Tip>
+          </Step>
 
-            <Section title="Architecture">
-              <Md>{`Two tiers: a **React single-page app** talks to a **FastAPI backend** that hosts
+          <Step n={4} title="Run the profiling pipeline">
+            <p>
+              Walk the 8-step pipeline (Dataset Overview → Relationship Analysis → … → Detailed
+              Profiling). Each step is AI-driven and renders as readable text plus structured tables.
+            </p>
+            <Lead label="You get:">profiling, relationships, a data dictionary, anomalies, and a metadata template.</Lead>
+            <Tip>A step occasionally shows "Something went wrong, Try again" — that's a transient model hiccup; click <strong>Retry</strong>.</Tip>
+          </Step>
+        </Card>
+
+        {/* 2. Architecture */}
+        <Card id="architecture">
+          <SectionHeader icon={Network}>2. Architecture</SectionHeader>
+          <Md>{`Two tiers: a **React single-page app** talks to a **FastAPI backend** that hosts
 the REST API, the AI agents (Google ADK), and a local SQLite warehouse. The
-backend calls an LLM provider (Gemini by default, or Groq via LiteLLM). Sessions
-and agent state persist locally — nothing leaves your machine except the LLM calls.`}</Md>
-              <div className="my-6 border border-gray-200 rounded-lg p-4 bg-brand-light/40">
-                <ArchitectureDiagram />
-              </div>
-            </Section>
+backend calls an LLM provider (Gemini by default, or Groq). Everything runs
+locally — nothing leaves your machine except the LLM calls.`}</Md>
+          <div className="my-5 border border-gray-200 rounded-lg p-4 bg-brand-light/40">
+            <ArchitectureDiagram />
+          </div>
+        </Card>
 
-            <Section title="Agentic AI Architecture">
-              <Md>{`The AI work runs on **Google ADK**. Each pipeline step is an HTTP call that
-spins up an **ADK \`Runner\`**, which drives an **Orchestrator agent**
-(\`root_agent\`, an \`LlmAgent\`). The orchestrator reads the user's intent and the
-bracketed \`[stage]\` (e.g. \`[Relationship]\`, \`[Data Anomaly Analysis]\`) and
-**delegates** to a specialized sub-agent via ADK's \`transfer_to_agent\`. Each
-sub-agent owns a small set of **FunctionTools** and a strict **\`output_schema\`**.`}</Md>
-              <div className="my-6 border border-gray-200 rounded-lg p-4 bg-brand-light/40">
-                <AgentArchitectureDiagram />
-              </div>
+        {/* 3. Low-Level Architecture */}
+        <Card id="low-level">
+          <SectionHeader icon={Layers}>3. Low-Level Architecture</SectionHeader>
+          <Md>{`Inside the backend a request travels through four module layers — **API → Agent
+Runtime → Domain Logic → Persistence**. The diagram names the actual modules and
+the SQLite stores.`}</Md>
+          <div className="my-5 border border-gray-200 rounded-lg p-4 bg-brand-light/40">
+            <BackendArchitectureDiagram />
+          </div>
 
-              <h3 id="how-an-agent-works-internally" className="scroll-mt-8 text-base font-semibold text-brand-darkblue mt-6 mb-2">
-                How an agent works internally (the tool-call loop)
-              </h3>
-              <Md>{`An ADK agent is an LLM wrapped in a **reason → act → observe** loop:
+          <h4 className="text-base font-semibold text-brand-darkblue mt-5 mb-2">Request lifecycle — a profiling step, end to end</h4>
+          <Md>{`1. **Frontend** — \`pages/ProfilingResult\` → \`end-points/profilingResultApi.ts\` POSTs \`/messages/send\` via \`utils/axios-interceptor.ts\`.
+2. **Routing & auth** — \`api/main.py\` → \`api/routers/messages.py:send_message()\`; \`auth.py:resolve_current_user()\` resolves the user (dev → \`local-user\`).
+3. **Session & runner** — parse \`[stage]\`, load session via \`adk_runtime.py:get_session_service()\` (\`DatabaseSessionService\`, \`adk_sessions.db\`), build the App + \`Runner\`, inject state, token-guard the message.
+4. **Orchestration** — \`runner.run_async()\` streams events; \`root_agent\` delegates to \`profiling_agent\` (\`transfer_to_agent\`).
+5. **Tool execution** — the LLM (Gemini/Groq via the \`canonical_model\` patch) emits a \`function_call\`; ADK runs \`intelligent_profiling_tool\` (\`profiling_dispatcher.py\` → \`profiling_functions.py\`) which queries \`local_warehouse.py\` (\`warehouse.db\`).
+6. **Finalize** — the LLM calls \`set_model_response\`; ADK validates against \`OutputFormatProfiling\` and writes \`state_delta["final_profiling_response"]\`.
+7. **Respond** — the handler shapes \`{ text_response, tool_response, status }\`, persists via \`profiling_artifact_store.py\`, returns JSON.
+8. **Render** — the SPA renders \`text_response\` (markdown) + the structured \`tool_response\`.`}</Md>
 
-1. The agent is given its **instruction**, the **JSON schemas of its tools**, the conversation **history**, and the current **session state**.
-2. The LLM emits a **\`function_call\`** (e.g. \`intelligent_profiling_tool(table_references=[...])\`).
-3. ADK executes the matching **\`FunctionTool\`** — a plain Python function that receives the args plus a **\`tool_context\`** (its handle to session state).
-4. The tool queries the **local warehouse** (SQL for stats, cardinality, key/overlap detection) and returns a structured **\`function_response\`** dict.
-5. The response is appended to the context and the LLM continues — calling more tools if needed.
-6. When done, the LLM calls the special **\`set_model_response(text_response, tool_response)\`** tool. ADK validates it against the agent's **\`output_schema\`** and writes it to **\`state_delta[output_key]\`**, which the endpoint reads and returns.
-
-So **agents communicate in two channels**: *tool calls* (agent → tool → warehouse/LLM, returning structured dicts) and the *final structured answer* (\`text_response\` for the UI + \`tool_response\` carrying the raw analysis).`}</Md>
-
-              <div className="my-6 border border-gray-200 rounded-lg p-4 bg-white">
-                <MermaidDiagram chart={AGENT_LOOP} />
-              </div>
-
-              <h3 id="agents-registry" className="scroll-mt-8 text-base font-semibold text-brand-darkblue mt-6 mb-2">
-                Agents
-              </h3>
-              <Md>{`| Agent | ADK type | Tools | Output schema |
+          <h4 className="text-base font-semibold text-brand-darkblue mt-5 mb-2">Storage layer (all local SQLite + files)</h4>
+          <Md>{`| Store | Path | Holds | Module |
 |---|---|---|---|
-| \`root_agent\` (orchestrator) | LlmAgent | \`ground_truth_tool\` + routing | — (router) |
+| Analytical warehouse | \`data/warehouse.db\` | Uploaded tables (\`sttm_*\`), queried with SQL | \`utils/local_warehouse.py\` |
+| Vector store | \`data/vectors.db\` | Embeddings for similarity / DART | \`sqlite-vec\` |
+| ADK sessions | \`data/adk_sessions.db\` | Agent history + \`state_delta\` | \`DatabaseSessionService\` |
+| App DB | \`data/app.db\` | Session metadata (titles, run ids) | \`db/engine.py\`, \`db/repositories.py\` |
+| Artifacts | \`data/artifacts/\` | Raw files + persisted step responses | \`utils/profiling_artifact_store.py\` |
+| Reports | \`reports/\` | ydata-profiling HTML (served at \`/reports\`) | \`api/routers/files.py\` |`}</Md>
+
+          <h4 className="text-base font-semibold text-brand-darkblue mt-5 mb-2">Frontend internals</h4>
+          <Md>{`| Area | Path | Role |
+|---|---|---|
+| Entry + routing | \`src/main.tsx\`, \`src/App.tsx\` | Bootstrap, \`createBrowserRouter\` |
+| App shell | \`src/components/\` (Layout, Header, Sidebar, ChatSidebar) | Navigation + chat |
+| Screens | \`src/pages/\` | Route screens |
+| API wrappers | \`src/end-points/\` | One Axios module per domain |
+| Transport | \`src/utils/axios-interceptor.ts\` | Base URL + identity headers |
+| State | \`src/state/\` (Redux), \`src/contexts/ChatContext\` | App + chat state |
+| Streaming | \`src/hooks/useSSEStream.ts\` | SSE for the streaming pipeline |
+| Config | \`src/config/\` | Env + branding constants |`}</Md>
+        </Card>
+
+        {/* 4. Agentic AI Architecture */}
+        <Card id="agentic">
+          <SectionHeader icon={Bot}>4. Agentic AI Architecture</SectionHeader>
+          <Md>{`The AI runs on **Google ADK**. Each step spins up an ADK \`Runner\` that drives an
+**Orchestrator agent** (\`root_agent\`). It reads the user's intent and the bracketed
+\`[stage]\` and **delegates** to a specialized sub-agent (\`transfer_to_agent\`). Each
+sub-agent owns a few **FunctionTools** and a strict **\`output_schema\`**.`}</Md>
+          <div className="my-5 border border-gray-200 rounded-lg p-4 bg-brand-light/40">
+            <AgentArchitectureDiagram />
+          </div>
+
+          <h4 className="text-base font-semibold text-brand-darkblue mt-5 mb-2">How an agent works internally</h4>
+          <Md>{`An ADK agent is an LLM wrapped in a **reason → act → observe** loop:
+
+1. The agent gets its **instruction**, its tools' **JSON schemas**, the conversation **history**, and the **session state**.
+2. The LLM emits a **\`function_call\`** (e.g. \`intelligent_profiling_tool(table_references=[...])\`).
+3. ADK runs the matching **\`FunctionTool\`** — a Python function that receives the args plus a **\`tool_context\`** (its handle to session state).
+4. The tool queries the **warehouse** (SQL for stats, cardinality, key/overlap detection) and returns a structured **\`function_response\`**.
+5. The response is appended to context; the LLM continues — more tools if needed.
+6. When done it calls **\`set_model_response(text_response, tool_response)\`**; ADK validates against the agent's **\`output_schema\`** and writes \`state_delta[output_key]\`.
+
+So agents communicate over **two channels**: *tool calls* (agent → tool → warehouse/LLM) and the *final structured answer* (\`text_response\` for the UI + \`tool_response\` with the raw analysis).`}</Md>
+          <div className="my-5 border border-gray-200 rounded-lg p-4 bg-white">
+            <MermaidDiagram chart={AGENT_LOOP} />
+          </div>
+
+          <h4 className="text-base font-semibold text-brand-darkblue mt-5 mb-2">Agents</h4>
+          <Md>{`| Agent | ADK type | Tools | Output schema |
+|---|---|---|---|
+| \`root_agent\` | LlmAgent | \`ground_truth_tool\` + routing | — (router) |
 | \`profiling_agent\` | Agent | \`intelligent_profiling_tool\`, \`relationship_analysis_tool\` | \`OutputFormatProfiling\` |
 | \`profiling_agent_anomaly\` | Agent | \`data_anomaly_analysis_tool\` | \`OutputFormatAnomaly\` |
-| \`data_dict_agent\` | LoopAgent (generator → saver) | \`append_chunk_to_bq\`, \`signal_exit\` | \`DataDictionaryResponse\` |
+| \`data_dict_agent\` | LoopAgent | \`append_chunk_to_bq\`, \`signal_exit\` | \`DataDictionaryResponse\` |
 | \`smart_similarity_agent\` | SequentialAgent | \`fetch_metadata_tool\` (2 phases) | \`SemanticMatchingResponse\` |
-| \`dart_suggestion_agent\` | LlmAgent | \`dart_suggestions_tool\` (vector search) | \`DartSuggestionResponse\` |
+| \`dart_suggestion_agent\` | LlmAgent | \`dart_suggestions_tool\` | \`DartSuggestionResponse\` |
 | \`metadata_fill_agent\` | LlmAgent (PlanReAct) | \`bigquery_toolset\`, execution tool | \`MetadataFillHITLResponse\` |`}</Md>
 
-              <h3 id="tools-registry" className="scroll-mt-8 text-base font-semibold text-brand-darkblue mt-6 mb-2">
-                Tool calls — inputs, work, and what they return
-              </h3>
-              <Md>{`| Tool | Receives | Does | Returns | Warehouse | LLM |
+          <h4 className="text-base font-semibold text-brand-darkblue mt-5 mb-2">Tool calls — inputs, work, and outputs</h4>
+          <Md>{`| Tool | Receives | Does | Returns | DB | LLM |
 |---|---|---|---|---|---|
-| \`intelligent_profiling_tool\` | \`table_references[]\`, \`tool_context\` | Per-table stats (nulls, cardinality, samples), PK/composite-key recommendations | \`result[]\` (\`ToolResultItem\`: quality score, column analysis, enhanced analysis) | Yes | Yes (key suggestions) |
-| \`relationship_analysis_tool\` | \`table_references\`, \`analysis_depth\` | PK/FK detection, cross-table overlap, composite (AK) keys | \`relationship_analysis_tool_response\` (relationships, table_details, classifications) | Yes | Yes (business context) |
-| \`data_anomaly_analysis_tool\` | \`table_references\`, \`anomaly_sensitivity\` | Format/outlier/duplicate/empty detection with severity | \`table_anomaly_reports\`, \`summary_statistics\` | Yes | No (statistical) |
-| \`fetch_metadata_tool\` | source + reference tables | Pull column metadata/samples for semantic + overlap matching | match candidates with scores | Yes | Yes (semantic match) |
-| \`dart_suggestions_tool\` | source columns | Vector search over reference (DART) catalog + MDR filter | suggested reference tables/columns | Yes (vector) | Yes (rerank) |
-| \`set_model_response\` | \`text_response\`, \`tool_response\` | Finalize: validate against \`output_schema\` | the validated final answer | No | — (LLM calls it) |
+| \`intelligent_profiling_tool\` | \`table_references[]\` | Stats, samples, PK/composite-key picks | \`result[]\` (quality, column analysis) | Yes | Yes |
+| \`relationship_analysis_tool\` | \`table_references\` | PK/FK + cross-table overlap, AK keys | \`relationship_analysis_tool_response\` | Yes | Yes |
+| \`data_anomaly_analysis_tool\` | \`table_references\`, sensitivity | Format/outlier/dup detection | \`table_anomaly_reports\` | Yes | No |
+| \`fetch_metadata_tool\` | source + reference tables | Metadata for semantic + overlap match | match candidates + scores | Yes | Yes |
+| \`dart_suggestions_tool\` | source columns | Vector search + MDR filter | suggested reference tables | Yes | Yes |
+| \`set_model_response\` | \`text_response\`, \`tool_response\` | Finalize against \`output_schema\` | validated answer | No | — |`}</Md>
+        </Card>
 
-> Reliability: in standalone mode the backend hardens this loop — \`output_schema\`
-> parsing falls back gracefully on shape/JSON mismatch, \`tool_response\` is coerced
-> to a dict, and session compaction is rehydrated on reload. Transient LLM hiccups
-> (a malformed function call, a hallucinated tool name) surface as "Try again".`}</Md>
-            </Section>
-
-            <Section title="Request Flow">
-              <Md>{`The sequence below shows a typical run: create a session, upload and process
-files, then execute a pipeline step that drives an AI agent and renders results.`}</Md>
-              <div className="my-6 border border-gray-200 rounded-lg p-4 bg-white">
-                <MermaidDiagram chart={SEQUENCE} />
-              </div>
-            </Section>
-
-            <Section title="The Profiling Pipeline">
-              <Md>{`After uploading + processing, the UI walks through an 8-step pipeline. Steps
-1–7 are AI-driven; the warehouse load and HTML report are produced during
-processing.
+        {/* 5. The Profiling Pipeline */}
+        <Card id="pipeline">
+          <SectionHeader icon={Workflow}>5. The Profiling Pipeline</SectionHeader>
+          <Md>{`After upload + processing, the UI walks 8 steps. Steps 1–7 are AI-driven; the
+warehouse load and HTML report come from processing.
 
 | # | Step | What it does | Endpoint |
 |---|---|---|---|
-| 1 | Dataset Overview | Profiling report, row/column counts, data-quality score, AI summary | \`POST /messages/send\` |
-| 2 | Relationship Analysis | Detects PK/FK and cross-table relationships | \`POST /messages/send\` |
+| 1 | Dataset Overview | Profiling report, counts, quality score, summary | \`POST /messages/send\` |
+| 2 | Relationship Analysis | PK/FK + cross-table relationships | \`POST /messages/send\` |
 | 3 | Data Dictionary | Column-level dictionary, saved as a table | \`POST /messages/data-dictionary\` |
-| 4 | Similarity Check | Compares columns against reference tables | \`POST /messages/similarity-check\` |
-| 5 | Reference Suggestion | Suggests reference tables (vector search) | \`POST /dart/dart-suggestion\` |
-| 6 | Data Anomaly Analysis | Detects anomalies with severity scoring | \`POST /messages/send\` |
-| 7 | Metadata Template | Fills the metadata + file-specs template | \`POST /messages/metadata_fill\` |
-| 8 | Detailed Profiling | Full ydata-profiling HTML report | \`GET /reports/{id}.html\` |
+| 4 | Similarity Check | Compares columns vs reference tables | \`POST /messages/similarity-check\` |
+| 5 | Reference Suggestion | Reference-table suggestions (vector search) | \`POST /dart/dart-suggestion\` |
+| 6 | Data Anomaly Analysis | Anomalies with severity scoring | \`POST /messages/send\` |
+| 7 | Metadata Template | Fills metadata + file-specs template | \`POST /messages/metadata_fill\` |
+| 8 | Detailed Profiling | Full ydata-profiling HTML report | \`GET /reports/{id}.html\` |`}</Md>
+          <h4 className="text-base font-semibold text-brand-darkblue mt-5 mb-2">Request flow</h4>
+          <div className="my-4 border border-gray-200 rounded-lg p-4 bg-white">
+            <MermaidDiagram chart={SEQUENCE} />
+          </div>
+        </Card>
 
-> If a step ever shows "Something went wrong, Try again", that's a transient LLM
-> hiccup — click **Retry** and it completes.`}</Md>
-            </Section>
+        {/* 6. Setup, Configuration & Troubleshooting */}
+        <Card id="setup">
+          <SectionHeader icon={Settings}>6. Setup, Configuration & Troubleshooting</SectionHeader>
+          <Md>{`**Install from scratch**
 
-            <Section title="Sample Data">
-              <Md>{`New here? Download the bundled sample datasets (healthcare-style \`providers\`,
-\`members\`, \`medical_claims\`, \`groups\` CSVs) and upload them to try the full
-pipeline without preparing your own files.`}</Md>
-              <a
-                href={sampleHref}
-                className="inline-flex items-center gap-2 mt-2 rounded-lg bg-brand-primary px-4 py-2 text-white font-medium hover:bg-brand-primary-hover transition-colors no-underline"
-              >
-                <Download size={18} strokeWidth={1.8} />
-                Download sample data (.zip)
-              </a>
-            </Section>
+1. Download or clone the repo, then \`cd\` into it.
+2. \`cp datamap_backend/.env.example datamap_backend/.env\`
+3. Add your key to \`.env\` (\`GOOGLE_API_KEY=...\`, or \`LLM_PROVIDER=groq\` + \`GROQ_API_KEY\`).
+4. \`./start.sh\` (installs deps on first run), then open <http://localhost:5173>.
 
-            <Section title="Setup & Installation">
-              <Md>{`**Prerequisites**
+Override ports with \`BACKEND_PORT\` / \`FRONTEND_PORT\`. Stop with **Ctrl+C**.
 
-- Python 3.12
-- Node.js 18+ and npm
-- bash shell (macOS / Linux; on Windows use WSL)
-- An LLM API key — free Gemini key at <https://aistudio.google.com/apikey>, or a Groq key
-
-**Steps**
-
-1. Download or clone the repository, then \`cd\` into it.
-2. Create the backend env file from the template:
-   \`\`\`bash
-   cp datamap_backend/.env.example datamap_backend/.env
-   \`\`\`
-3. Add your key to \`datamap_backend/.env\`:
-   \`\`\`bash
-   # Gemini (default)
-   GOOGLE_API_KEY=your-key-here
-   # — or — Groq instead:
-   # LLM_PROVIDER=groq
-   # GROQ_API_KEY=your-groq-key
-   \`\`\`
-4. Start everything (installs deps on first run):
-   \`\`\`bash
-   ./start.sh
-   \`\`\`
-5. Open <http://localhost:5173>.`}</Md>
-            </Section>
-
-            <Section title="Running the App">
-              <Md>{`\`./start.sh\` creates the Python virtualenv, installs backend + frontend
-dependencies, starts the **backend on :8001** and the **frontend on :5173**,
-and waits for the backend health check.
-
-- Override ports: \`BACKEND_PORT=8011 FRONTEND_PORT=5173 ./start.sh\`
-- Stop both: press **Ctrl+C**.
-- The runtime data directory (warehouse, sessions, reports) is created
-  automatically on first run.
-
-> If you run \`./start.sh\` before adding a key, the app still launches but AI
-> steps will error until you add the key to \`.env\` and restart.`}</Md>
-            </Section>
-
-            <Section title="Configuration">
-              <Md>{`Backend config is read from \`datamap_backend/.env\`.
+**Configuration** (\`datamap_backend/.env\`)
 
 | Variable | Default | Purpose |
 |---|---|---|
-| \`LLM_PROVIDER\` | auto (\`gemini\`) | \`gemini\` or \`groq\`. |
-| \`GOOGLE_API_KEY\` | — | Gemini Developer API key. |
-| \`GROQ_API_KEY\` | — | Groq API key (set with \`LLM_PROVIDER=groq\`). |
-| \`GOOGLE_GENAI_USE_VERTEXAI\` | \`FALSE\` | Keep \`FALSE\` for standalone. |
-| \`APP_SESSION_AUTH_MODE\` | \`dev\` | \`dev\` (no login), \`launchpad_sso\`, or \`iap\`. |
-| \`DATAMAP_CORS_ORIGINS\` | local origins | Comma-separated CORS allow-list override. |
+| \`LLM_PROVIDER\` | auto (\`gemini\`) | \`gemini\` or \`groq\` |
+| \`GOOGLE_API_KEY\` | — | Gemini Developer API key |
+| \`GROQ_API_KEY\` | — | Groq key (with \`LLM_PROVIDER=groq\`) |
+| \`APP_SESSION_AUTH_MODE\` | \`dev\` | \`dev\` (no login), \`launchpad_sso\`, \`iap\` |
+| \`DATAMAP_CORS_ORIGINS\` | local origins | CORS allow-list override |
 
-The frontend reads \`VITE_REACT_API_BASE_URL\` (defaults to \`http://127.0.0.1:8001\`).
-Secrets live only in \`.env\`, which is git-ignored.`}</Md>
-            </Section>
+**Troubleshooting**
 
-            <Section title="Troubleshooting">
-              <Md>{`| Symptom | Cause | Fix |
-|---|---|---|
-| "Network Error" on every call | Frontend origin not allowed by CORS | Run the frontend on \`5173\`, or set \`DATAMAP_CORS_ORIGINS\`. |
-| "Something went wrong, Try again …" | Transient LLM hiccup | Click **Retry**. |
-| AI steps error, no output | Missing/invalid API key | Add \`GOOGLE_API_KEY\` (or Groq key) to \`.env\` and restart. |
-| Port already in use | Another process owns the port | Change \`BACKEND_PORT\` / \`FRONTEND_PORT\`. |
-| Similarity / Reference "no results" | No reference dataset in standalone | Expected — those need a reference (DART) dataset. |
+| Symptom | Fix |
+|---|---|
+| "Network Error" on every call | Run the frontend on \`5173\`, or set \`DATAMAP_CORS_ORIGINS\` |
+| "Something went wrong, Try again" | Transient LLM hiccup — click **Retry** |
+| AI steps error, no output | Add a valid key to \`.env\` and restart |
+| Similarity / Reference "no results" | Expected in standalone (no reference/DART dataset) |
 
-The interactive API spec is available at \`/docs\` (Swagger) and \`/openapi.json\`.`}</Md>
-            </Section>
-          </article>
+The interactive API spec is at \`/docs\` (Swagger) and \`/openapi.json\`.`}</Md>
+        </Card>
+
+        {/* Build bar */}
+        <div className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs text-slate-500 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+          <span>DataMap (STTM)</span>
+          <span className="text-gray-300">|</span>
+          <span>standalone build</span>
+          <span className="text-gray-300">|</span>
+          <span>no login (dev mode)</span>
+          <span className="text-gray-300">|</span>
+          <span className="font-medium text-brand-darkblue">Knowledge Base</span>
         </div>
       </main>
     </div>
