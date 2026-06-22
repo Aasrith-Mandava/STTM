@@ -32,6 +32,7 @@ from api.routers import mapping
 from api.routers import evidencehub
 from api.routers import graphs
 from api.routers import mapping, indemap, dart_suggestion
+from api.routers import settings as settings_router
 from datetime import datetime
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
@@ -130,3 +131,4 @@ app.include_router(extract_driver.router, prefix="/extract", tags=["extract_driv
 app.include_router(doc_extraction.router, prefix="/doc", tags=["doc_extraction"])
 app.include_router(extracts.router, prefix="/extracts", tags=["extracts"])
 app.include_router(quality.router, prefix="/quality", tags=["quality"])
+app.include_router(settings_router.router, prefix="/settings", tags=["settings"])
