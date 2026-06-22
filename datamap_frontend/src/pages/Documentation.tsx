@@ -245,6 +245,30 @@ export default function Documentation() {
             <Lead label="You get:">profiling, relationships, a data dictionary, anomalies, and a metadata template.</Lead>
             <Tip>A step occasionally shows "Something went wrong, Try again" — that's a transient model hiccup; click <strong>Retry</strong>.</Tip>
           </Step>
+
+          <h4 className="text-base font-semibold text-brand-darkblue mt-6 mb-2">What to upload for each workflow</h4>
+          <p className="text-sm text-slate-600 mb-3">
+            Different workflows expect different inputs. Upload the files into the matching field —
+            required fields are marked, optional ones can be skipped.
+          </p>
+          <Md>{`**Profiling** — *New Profiling → Upload*
+
+| Field | Required? | Accepts | What to upload |
+|-------|-----------|---------|----------------|
+| **Source data** (main drag-and-drop) | Required | CSV | The data tables to profile (e.g. \`providers.csv\`, \`members.csv\`). Upload all of them together. |
+| **Data Dictionary** | Optional | CSV, XLSX, TXT | A column dictionary, if you have one |
+| **BRD Document** | Optional | PDF, DOCX | A business-requirements doc, if you have one |
+
+**Extract** — *New Session → Extract*
+
+| Field | Required? | Accepts | What to upload |
+|-------|-----------|---------|----------------|
+| **BRD Document** | Required | PDF, DOCX | The Business Requirements Document |
+| **File Layout Document** | Required | PDF, DOCX, XLSX | The source file layout / spec |
+| **Transcript** | Optional | PDF, DOCX | A meeting / call transcript, if you have one |
+
+> For the bundled **sample data** (Profiling): drop all four CSVs (\`groups\`, \`providers\`,
+> \`members\`, \`medical_claims\`) into **Source data**, and leave Data Dictionary / BRD empty.`}</Md>
         </Card>
 
         {/* 2. Architecture */}

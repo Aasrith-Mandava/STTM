@@ -166,6 +166,29 @@ Stop both with **Ctrl+C**.
 
 ---
 
+## What to upload (by workflow)
+
+Different workflows expect different inputs — upload each file into its matching field.
+
+**Profiling** — *New Profiling → Upload*
+
+| Field | Required? | Accepts | What to upload |
+|-------|-----------|---------|----------------|
+| **Source data** (main drag-and-drop) | Required | CSV | The data tables to profile (e.g. `providers.csv`, `members.csv`). Upload all together. |
+| **Data Dictionary** | Optional | CSV, XLSX, TXT | A column dictionary, if you have one |
+| **BRD Document** | Optional | PDF, DOCX | A business-requirements doc, if you have one |
+
+**Extract** — *New Session → Extract*
+
+| Field | Required? | Accepts | What to upload |
+|-------|-----------|---------|----------------|
+| **BRD Document** | Required | PDF, DOCX | The Business Requirements Document |
+| **File Layout Document** | Required | PDF, DOCX, XLSX | The source file layout / spec |
+| **Transcript** | Optional | PDF, DOCX | A meeting / call transcript, if you have one |
+
+> Sample data is for the **Profiling** workflow: drop all four CSVs (`groups`, `providers`,
+> `members`, `medical_claims`) into **Source data**; leave Data Dictionary / BRD empty.
+
 ## Configuration
 
 Backend config lives in `datamap_backend/.env` (git-ignored — secrets never committed).
