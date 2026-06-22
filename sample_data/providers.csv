@@ -1,0 +1,26 @@
+provider_id,provider_name,npi,specialty,state,network_status
+PRV2001,Dr. Lee,1818739736,Cardiology,OH,In-Network
+PRV2002,Dr. Lee,1524636385,Internal Medicine,NJ,In-Network
+PRV2003,Dr. Khan,1257109965,Internal Medicine,DE,In-Network
+PRV2004,Dr. Patel,1785879795,Pediatrics,NJ,Out-of-Network
+PRV2005,Dr. Nguyen,1708402051,Pediatrics,OH,Out-of-Network
+PRV2006,Dr. Khan,1566585408,Family Practice,VA,In-Network
+PRV2007,Dr. Garcia,1997413271,Radiology,DE,In-Network
+PRV2008,Dr. Brown,1721218382,Oncology,CA,In-Network
+PRV2009,Dr. Davis,1129927269,Cardiology,DE,In-Network
+PRV2010,Dr. Lee,1022585366,Radiology,OH,Out-of-Network
+PRV2011,Dr. Garcia,1007721109,Internal Medicine,PA,Out-of-Network
+PRV2012,Dr. Patel,1972187337,Internal Medicine,CA,In-Network
+PRV2013,Dr. Garcia,1299012686,Oncology,TX,Out-of-Network
+PRV2014,Dr. Nguyen,1776693898,Radiology,VA,In-Network
+PRV2015,Dr. Garcia,1842478695,Pediatrics,FL,Out-of-Network
+PRV2016,Dr. Patel,1104078666,Oncology,FL,In-Network
+PRV2017,Dr. Brown,1441417711,Pediatrics,PA,In-Network
+PRV2018,Dr. Smith,1432311310,Oncology,CA,In-Network
+PRV2019,Dr. Garcia,1205718272,Cardiology,OH,In-Network
+PRV2020,Dr. Nguyen,1452991960,Cardiology,MD,In-Network
+PRV2021,Dr. Garcia,1938972143,Internal Medicine,TX,In-Network
+PRV2022,Dr. Smith,1700235246,Radiology,PA,In-Network
+PRV2023,Dr. Garcia,1178575192,Pediatrics,TX,In-Network
+PRV2024,Dr. Garcia,1928411292,Pediatrics,PA,Out-of-Network
+PRV2025,Dr. Brown,1002314313,Pediatrics,MD,In-Network

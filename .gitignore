@@ -1,0 +1,52 @@
+# ---- Secrets (never commit) ----
+# Real API keys live here; templates (.env.example / .env.production) are kept.
+.env
+**/.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# ---- Python ----
+.venv/
+**/.venv/
+venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- Node / frontend ----
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+*.tsbuildinfo
+
+# ---- Runtime-generated data (local warehouse, sessions, artifacts, reports) ----
+datamap_backend/data/
+datamap_backend/reports/
+datamap_backend/**/reports/
+datamap_backend/events.txt
+**/events.txt
+*_events.txt
+**/dd_events.txt
+*.db
+*.sqlite
+*.sqlite3
+
+# ---- Large sample data (exceeds practical git limits) ----
+sample_data/medical_claims_large.csv
+
+# ---- Logs & OS cruft ----
+*.log
+.DS_Store
+Thumbs.db
+
+# ---- Editor / local tooling ----
+.idea/
+*.swp
+.claude/settings.local.json
