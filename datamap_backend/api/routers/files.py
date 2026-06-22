@@ -1071,3 +1071,40 @@ async def download_file_by_url(session_id: str, file_url: str):
     except Exception as e:
         logger.exception(f"Failed to download file for session_id={session_id}, file_url={file_url}")
         raise HTTPException(status_code=500, detail=f"Failed to download file: {e}")
+
+
+@router.get("/sample-data")
+def download_sample_data():
+    """Stream a zip of the bundled sample datasets so users can try the app
+    without supplying their own files. Very large samples are skipped to keep
+    the download lightweight. Public (no auth) so it works in any auth mode."""
+    import io
+    import zipfile
+    from pathlib import Path
+
+    repo_root = Path(__file__).resolve().parents[3]
+    sample_dir = repo_root / "sample_data"
+    if not sample_dir.is_dir():
+        raise HTTPException(status_code=404, detail="Sample data not found.")
+
+    max_bytes = 50 * 1024 * 1024  # skip very large samples (e.g. the ~99MB file)
+    buffer = io.BytesIO()
+    added = 0
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        for path in sorted(sample_dir.iterdir()):
+            if not path.is_file() or path.suffix.lower() == ".zip":
+                continue  # skip nested zips
+            try:
+                if path.stat().st_size > max_bytes:
+                    continue
+            except OSError:
+                continue
+            zf.write(path, arcname=path.name)
+            added += 1
+
+    if added == 0:
+        raise HTTPException(status_code=404, detail="No sample data files available.")
+
+    buffer.seek(0)
+    headers = {"Content-Disposition": 'attachment; filename="sttm_sample_data.zip"'}
+    return StreamingResponse(buffer, media_type="application/zip", headers=headers)
